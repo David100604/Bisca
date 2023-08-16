@@ -10,6 +10,7 @@ class Jogo(Baralho):
         self.jogadores = []
         self.cartaCortada = None
         self.idCortador = 0
+        self.corte = None
 
     def CriarJogo(self, num_jogadores):
         if self.jogadores == []:
@@ -44,6 +45,23 @@ class Jogo(Baralho):
 
         self.cartaCortada = self.cartas.pop(num)
         print("Carta cortada:", self.cartaCortada)
+        if self.cartaCortada in self.biscas:
+            if '♥' in self.cartaCortada:
+                self.corte = "♦"
+                print('corte:', self.corte)
+            elif '♦' in self.cartaCortada:
+                self.corte = '♥'
+                print('corte:', self.corte)
+            elif '♣' in self.cartaCortada:
+                self.corte = '♠'
+                print('corte:', self.corte)
+            elif '♠' in self.cartaCortada:
+                self.corte = '♣'
+                print('corte:', self.corte)
+        else:
+            self.corte = self.cartaCortada[1:]
+            print('corte:', self.corte)
+
         return self.cartaCortada, self.idCortador
 
     def distribuir_cartas(self, cartas_por_jogador):
@@ -67,5 +85,4 @@ class Jogo(Baralho):
 
         for jogador in self.jogadores:
             jogador.vez = nova_ordem[jogador.id - 1]
-
 
