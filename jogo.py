@@ -107,8 +107,7 @@ class Jogo(Baralho):
 
     def Rodada(self):
         for jogador in self.jogadores:
-            if jogador.vez == jogador.id + 1:
-                carta_jogada = jogador.Jogar()
+            carta_jogada = jogador.Jogar()
 
 
 
