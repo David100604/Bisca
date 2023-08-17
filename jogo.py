@@ -35,9 +35,9 @@ class Jogo(Baralho):
                         j.dupla = jogador.nome
 
     def Cortar(self):
-        self.idCortador = random.randint(0, 3)
+        self.idCortador = random.randint(1, len(self.jogadores))
         for jogador in self.jogadores:
-            if jogador.id == self.idCortador:
+            if jogador.id == self.idCortador - 1:
                 num = int(input(f"{jogador.nome}, insira um número de 0 a 39: "))
         if num < 0 or num >= self.baralho.qtdeCartas:
             print("Número fora do intervalo válido.")
@@ -85,4 +85,30 @@ class Jogo(Baralho):
 
         for jogador in self.jogadores:
             jogador.vez = nova_ordem[jogador.id - 1]
+
+
+    def Terminou(self):
+        for jogador in self.jogadores:
+            if len(jogador.mao) > 0:
+                return False
+        return True
+
+    def Comecar(self):
+        self.CriarJogo(4)
+        self.embaralhar()
+        self.consultar()
+        self.Cortar()
+        self.distribuir_cartas(3)
+        self.CriarDuplas()
+        self.DefinirComeco()
+
+        while not self.Terminou():
+            self.Rodada()
+
+    def Rodada(self):
+        for jogador in self.jogadores:
+            if jogador.vez == jogador.id + 1:
+                carta_jogada = jogador.Jogar()
+
+
 
