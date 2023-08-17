@@ -1,7 +1,7 @@
 from jogador import Jogador
 import random
 
-class Baralho:
+class Baralho():
     def __init__(self):
         self.cartasC = ['2♥', '3♥', '4♥', '5♥', '6♥', 'Q♥', 'J♥', 'K♥', '7♥', 'A♥']
         self.cartasP = ['2♣', '3♣', '4♣', '5♣', '6♣', 'Q♣', 'J♣', 'K♣', '7♣', 'A♣']
