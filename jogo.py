@@ -11,9 +11,10 @@ class Jogo(Baralho):
         self.cartaCortada = None
         self.idCortador = 0
         self.corte = None
+        self.ordem = []
 
     def CriarJogo(self, num_jogadores):
-        if self.jogadores == []:
+        if not self.jogadores:
             nomes = [input(f"Insira o nome do {i + 1}º jogador: ") for i in range(num_jogadores)]
             self.jogadores = [Jogador(nomes[i]) for i in range(num_jogadores)]
             for i, jogador in enumerate(self.jogadores):
@@ -73,19 +74,17 @@ class Jogo(Baralho):
                     jogador.mao.append(carta)
 
         if len(self.cartas) == 0 and self.cartaCortada is not None:
-            self.jogadores[-1].mao.append(self.cartaCortada)  # Último jogador recebe a carta cortada
+            self.jogadores[-1].mao.append(self.cartaCortada)
 
         return self.jogadores
 
     def DefinirComeco(self):
         ordem_de_jogada = [1, 2, 3, 4]
-        indice_cortador = ordem_de_jogada.index(self.idCortador) + 1
-
-        nova_ordem = ordem_de_jogada[indice_cortador:] + ordem_de_jogada[:indice_cortador]
-
+        indice_cortador = ordem_de_jogada.index(self.idCortador) + 2
+        ordem = ordem_de_jogada[indice_cortador:] + ordem_de_jogada[:indice_cortador]
         for jogador in self.jogadores:
-            jogador.vez = nova_ordem[jogador.id - 1]
-
+            jogador.vez = ordem[jogador.id]
+        return ordem
 
     def Terminou(self):
         for jogador in self.jogadores:
@@ -96,18 +95,18 @@ class Jogo(Baralho):
     def Comecar(self):
         self.CriarJogo(4)
         self.embaralhar()
-        self.consultar()
+
         self.Cortar()
         self.distribuir_cartas(3)
         self.CriarDuplas()
-        self.DefinirComeco()
+        self.ordem = self.DefinirComeco()
 
         while not self.Terminou():
             self.Rodada()
 
     def Rodada(self):
-        for jogador in self.jogadores:
+        for i in self.ordem:
+            jogador = self.jogadores[i - 1]
             carta_jogada = jogador.Jogar()
-
 
 
