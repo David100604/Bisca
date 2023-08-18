@@ -103,6 +103,8 @@ class Jogo(Baralho):
 
         while not self.Terminou():
             self.Rodada()
+            if len(self.cartas) > 0:
+                self.distribuir_cartas(1)
 
     def Rodada(self):
         for i in self.ordem:
