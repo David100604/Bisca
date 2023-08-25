@@ -16,6 +16,7 @@ class Jogo(Baralho):
         self.naipesJogados = []
         self.valoresJogados = []
         self.valorMandante = -4
+        self.chaveCartas = {}
 
     def CriarJogo(self, num_jogadores):
         if not self.jogadores:
@@ -139,11 +140,9 @@ class Jogo(Baralho):
                 naipeMandante = self.corte
                 cartaMandante = c
                 self.valorMandante = self.valoresJogados[i]
-                print(naipeMandante)
             else:
                 naipeMandante = self.naipesJogados[0]
 
-                print(naipeMandante)
 
         valorMandante = self.valoresJogados[0]
         if cartaMandante is None:
@@ -152,12 +151,18 @@ class Jogo(Baralho):
         ganhadoras = []
 
         for i, v in enumerate(self.valoresJogados):
-
                 if self.naipesJogados[i] == naipeMandante:
                     ganhadoras.append(v)
 
-        cartaMandante = max(ganhadoras)
-        print(cartaMandante)
+        valorMandante = max(ganhadoras)
+        self.inverterChaves()
+        cartaMandante = self.chaveCartas[valorMandante]
+        print(cartaMandante + naipeMandante)
+
+    def inverterChaves(self):
+
+        for chave, valor in self.baralho.valor.items():
+            self.chaveCartas[valor] = chave
 
 
 
