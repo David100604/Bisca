@@ -12,6 +12,10 @@ class Jogo(Baralho):
         self.idCortador = 0
         self.corte = None
         self.ordem = []
+        self.mesa = []
+        self.naipesJogados = []
+        self.valoresJogados = []
+        self.valorMandante = -4
 
     def CriarJogo(self, num_jogadores):
         if not self.jogadores:
@@ -103,12 +107,61 @@ class Jogo(Baralho):
 
         while not self.Terminou():
             self.Rodada()
+            print(self.mesa)
             if len(self.cartas) > 0:
                 self.distribuir_cartas(1)
 
     def Rodada(self):
+        self.mesa = []
+        self.naipesJogados = []
+        self.valoresJogados = []
+
         for i in self.ordem:
             jogador = self.jogadores[i - 1]
             carta_jogada = jogador.Jogar()
+            carta = carta_jogada[:1]
+            self.mesa.append(carta_jogada)
+            naipeCarta = carta_jogada[1:]
+            self.naipesJogados.append(naipeCarta)
+            valor = self.baralho.valor[carta]
+            self.valoresJogados.append(valor)
+
+        self.DefinirNaipeGanhador()
+
+
+    def DefinirNaipeGanhador(self):
+        cartaMandante = None
+
+        for i, c in enumerate(self.mesa):
+            naipeCarta = c[1:]
+
+            if self.corte in self.naipesJogados:
+                naipeMandante = self.corte
+                cartaMandante = c
+                self.valorMandante = self.valoresJogados[i]
+                print(naipeMandante)
+            else:
+                naipeMandante = self.naipesJogados[0]
+
+                print(naipeMandante)
+
+        valorMandante = self.valoresJogados[0]
+        if cartaMandante is None:
+            cartaMandante = self.mesa[0]
+
+        ganhadoras = []
+
+        for i, v in enumerate(self.valoresJogados):
+
+                if self.naipesJogados[i] == naipeMandante:
+                    ganhadoras.append(v)
+
+        cartaMandante = max(ganhadoras)
+        print(cartaMandante)
+
+
+
+
+
 
 
