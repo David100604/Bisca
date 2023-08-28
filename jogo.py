@@ -17,6 +17,9 @@ class Jogo(Baralho):
         self.valoresJogados = []
         self.valorMandante = -4
         self.chaveCartas = {}
+        self.winnerId = 1
+        self.ordem = []
+
 
     def CriarJogo(self, num_jogadores):
         if not self.jogadores:
@@ -32,13 +35,13 @@ class Jogo(Baralho):
             if jogador.id == 0:
                 for j in self.jogadores:
                     if j.id == 2:
-                        jogador.dupla = j.nome
-                        j.dupla = jogador.nome
+                        jogador.dupla = j
+                        j.dupla = jogador
             elif jogador.id == 1:
                 for j in self.jogadores:
                     if j.id == 3:
-                        jogador.dupla = j.nome
-                        j.dupla = jogador.nome
+                        jogador.dupla = j
+                        j.dupla = jogador
 
     def Cortar(self):
         self.idCortador = random.randint(1, len(self.jogadores))
@@ -54,19 +57,23 @@ class Jogo(Baralho):
         if self.cartaCortada in self.biscas:
             if '♥' in self.cartaCortada:
                 self.corte = "♦"
-                print('corte:', self.corte)
+                jogador.corte = "♦"
             elif '♦' in self.cartaCortada:
                 self.corte = '♥'
-                print('corte:', self.corte)
+                jogador.corte = '♥'
             elif '♣' in self.cartaCortada:
                 self.corte = '♠'
-                print('corte:', self.corte)
+                jogador.corte = '♠'
             elif '♠' in self.cartaCortada:
                 self.corte = '♣'
-                print('corte:', self.corte)
+                jogador.corte = '♣'
         else:
             self.corte = self.cartaCortada[1:]
-            print('corte:', self.corte)
+            jogador.corte = self.cartaCortada[1:]
+
+        for jogador in self.jogadores:
+            jogador.sete = '7' + self.corte
+            jogador.a = 'A' + self.corte
 
         return self.cartaCortada, self.idCortador
 
@@ -86,10 +93,10 @@ class Jogo(Baralho):
     def DefinirComeco(self):
         ordem_de_jogada = [1, 2, 3, 4]
         indice_cortador = ordem_de_jogada.index(self.idCortador) + 2
-        ordem = ordem_de_jogada[indice_cortador:] + ordem_de_jogada[:indice_cortador]
+        self.ordem = ordem_de_jogada[indice_cortador:] + ordem_de_jogada[:indice_cortador]
         for jogador in self.jogadores:
-            jogador.vez = ordem[jogador.id]
-        return ordem
+            jogador.vez = self.ordem[jogador.id]
+        return self.ordem
 
     def Terminou(self):
         for jogador in self.jogadores:
@@ -97,40 +104,33 @@ class Jogo(Baralho):
                 return False
         return True
 
-    def Comecar(self):
-        self.CriarJogo(4)
-        self.embaralhar()
-
-        self.Cortar()
-        self.distribuir_cartas(3)
-        self.CriarDuplas()
-        self.ordem = self.DefinirComeco()
-
-        while not self.Terminou():
-            self.Rodada()
-            print(self.mesa)
-            if len(self.cartas) > 0:
-                self.distribuir_cartas(1)
 
     def Rodada(self):
         self.mesa = []
         self.naipesJogados = []
         self.valoresJogados = []
 
-        for i in self.ordem:
+        for n, i in enumerate(self.ordem):
+            print("Corte: ", self.cartaCortada)
+            print("Mesa: ", self.mesa)
             jogador = self.jogadores[i - 1]
+            jogador.vez  = n + 1
             carta_jogada = jogador.Jogar()
             carta = carta_jogada[:1]
             self.mesa.append(carta_jogada)
+            print('\n' *130)
             naipeCarta = carta_jogada[1:]
             self.naipesJogados.append(naipeCarta)
             valor = self.baralho.valor[carta]
             self.valoresJogados.append(valor)
+            for j in self.jogadores:
+                j.cartasJogadas.append(carta_jogada)
 
-        self.DefinirNaipeGanhador()
+        self.DefinirCartaGanhadora()
+        self.DefinirNovoComeco()
 
 
-    def DefinirNaipeGanhador(self):
+    def DefinirCartaGanhadora(self):
         cartaMandante = None
 
         for i, c in enumerate(self.mesa):
@@ -156,8 +156,29 @@ class Jogo(Baralho):
 
         valorMandante = max(ganhadoras)
         self.inverterChaves()
-        cartaMandante = self.chaveCartas[valorMandante]
-        print(cartaMandante + naipeMandante)
+        carta = self.chaveCartas[valorMandante]
+        cartaMandante = carta + naipeMandante
+        print(cartaMandante)
+
+        for i, c in enumerate(self.mesa):
+            if c == cartaMandante:
+                for x, j in enumerate(self.jogadores):
+                    if j.vez == i + 1:
+                        j.monte.append(self.mesa)
+                        self.winnerId = j.id + 1
+                        print(j.nome, " ganhou a rodada com a carta: ", c)
+
+        return  self.winnerId
+
+    def DefinirNovoComeco(self):
+            ordem_de_jogada = self.ordem
+            winner_index = ordem_de_jogada.index(self.winnerId)
+            self.ordem = ordem_de_jogada[winner_index:] + ordem_de_jogada[:winner_index]
+
+            for jogador in self.jogadores:
+                jogador.vez = self.ordem[jogador.id]
+
+            return self.ordem
 
     def inverterChaves(self):
 
@@ -165,8 +186,65 @@ class Jogo(Baralho):
             self.chaveCartas[valor] = chave
 
 
+    def ContarPontos(self):
+
+        for jogador in self.jogadores:
+            for lista in jogador.monte:
+                for c in lista:
+                    carta = c[:1]
+                    if carta == "Q":
+                        jogador.pontos += 2
+                    elif carta == "J":
+                        jogador.pontos += 3
+                    elif carta == "K":
+                        jogador.pontos += 4
+                    elif carta == "7":
+                        jogador.pontos += 10
+                    elif carta == "A":
+                        jogador.pontos += 11
+
+        for jogador in self.jogadores:
+            jogador.pontosDupla = jogador.pontos + jogador.dupla.pontos
 
 
+    def ExibirGanhador(self):
+        ganhadores = []
+        perdedores = []
+
+        for jogador in self.jogadores:
+            if jogador.pontosDupla > 60:
+                ganhadores.append(jogador)
+            elif jogador.pontosDupla < 60:
+                perdedores.append(jogador)
+            elif jogador.pontosDupla == 60:
+                print("EMPATE")
+
+        ganhador1 = ganhadores[0].nome
+        ganhador2 = ganhadores[1].nome
+        print("Os jogadores ", ganhador1, ganhador2, " ganharam com ", ganhadores[0].pontosDupla, " pontos.")
+
+        perdedor1 = perdedores[0].nome
+        perdedor2 = perdedores[1].nome
+        print("Os jogadores ", perdedor1, perdedor2, " perderam com ", perdedores[0].pontosDupla, " pontos.")
+
+
+    def Comecar(self):
+        self.CriarJogo(4)
+        self.embaralhar()
+
+        self.Cortar()
+        self.distribuir_cartas(3)
+        self.CriarDuplas()
+        self.ordem = self.DefinirComeco()
+
+        while not self.Terminou():
+            self.Rodada()
+            print(self.mesa)
+            if len(self.cartas) > 0:
+                self.distribuir_cartas(1)
+
+        self.ContarPontos()
+        self.ExibirGanhador()
 
 
 
