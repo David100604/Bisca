@@ -10,6 +10,17 @@ class Baralho():
         self.cartas = self.cartasC + self.cartasP + self.cartasE + self.cartasO
         self.qtdeCartas = 40
         self.biscas = ['7♠', 'A♠', '7♦', 'A♦', '7♣', 'A♣', '7♥', 'A♥']
+        self.valor = {"2": -3,
+                      "3": -2,
+                      "4": -1,
+                      "5": 0,
+                      "6": 1,
+                      "Q": 2,
+                      "J": 3,
+                      "K": 4,
+                      "7": 10,
+                      "A": 11
+                      }
 
     def consultar(self):
         print(self.cartas)
